@@ -1,0 +1,9 @@
+Creating the help source
+
+The following footnote symbols are used in the help source document
+
+# - topic ID - Defines a unique identifier for a topic. This footnote is required for every topic.  Not displayed.
+
+$ - title - Specifies the title of the topic as it appears in the Topics Found dialog box, the Bookmark dialog box, and the History window.
+
+K - keyword - Specifies words complied into the index and in KLink macros.

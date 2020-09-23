@@ -1,0 +1,61 @@
+HISTORY
+
+### 0.2.0 Alpha
+FEATURE: Improved contextual linking [See seperate ideas text].
+FEATURE: Improved error reporting and stability of file loading.
+FEATURE: Now detects if an actor the user is attempting to load is greater than the version number of the program, and msgs accordingly.
+FEATURE: Added error logfile.
+
+
+### 0.1.7 Alpha
+
+- May 2001
+FEATURE: The installation program now associates *.atr files with the Actor program, so you can double click an Actor file to start it.
+FEATURE: Supplies a filename generated from the name of the actor if that actor has never been saved before.  Also on saving, if the Actor's name has not been changed from the default but save name is not the default, then change the default name to that of the save file title, minus the .atr suffix.
+FEATURE: Built in medium and low monitor reporting levels.
+FEATURE: Eliminate jabber.  A preferred sentence size limit can now be set in Actor->Preferences->Reply.  If this limit is reached or being exceeded when a reply is being created, any word with more than a certain proportion of its links being sentence start/end will be set to be the start/end.  This proportion can also be set in Actor->Preferences->Reply.
+
+
+### 0.1.6 Alpha
+
+  FEATURE: Created proper help files accessible from within Actor.
+  FEATURE: Title bar now reads with name of program (Actor) then name of Actor.
+  FEATURE: An asterisk after the actor's name on the title bar now signals if it has changed in any way.
+  FEATURE: Double clicking on a word in the link list view of the vocabulary monitoring window now jumps to that word and shows its links.
+  FIXED: Potential bug where opening another actor when there was already another actor open that hadn't been changed would invoke the "Do you want to save the changed Actor?" dialog box for the existing actor twice.  Pressing No or Cancel on the second box would cause an error.
+
+
+### 0.1.5 Alpha
+
+  FIXED: Bug which prevented saving actor or logfiles if they didn't already exist.  Also fixed potential bug in trying to save over hidden/system/archived files :-P
+
+
+### 0.1.4 Alpha
+
+  FEATURE: You can now log what the actor says.  Also an option for automatic logging if a log file has been previously set.
+  FIXED: Potential crash when attempting to save actors or logs on read-only files.
+
+
+### 0.1.3 Alpha
+
+  INFO: When opening or creating a new actor, the program now gives you the option to save the current actor if it has changed since the last save.
+  FIXED: Minor reloading bug when words had been deleted/amalgamated.
+  INFO: When deciding on which words to contextualise, Actor no longer counts non alphanumeric characters in deciding the length of the word. (e.g. Beetle = 6 letters but Shout! = 5 letters).
+  FIXED: Import should now ignore alphanumeric characters and be able to import text files where lines are delimited by &H0A (i.e. UNIX text files).
+
+
+### 0.1.2 Alpha
+
+  Now retaining file paths for dialog boxes.
+  More minor fixes.
+  Included sample actor 'Alice'.
+
+
+### 0.1.1 Alpha
+
+  Minor tidying up.
+
+
+### 0.1.0 Alpha
+
+  First (very limited) release!
