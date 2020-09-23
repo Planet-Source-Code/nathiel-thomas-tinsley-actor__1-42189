@@ -1,0 +1,3 @@
+Bugs
+
+I'm currently assuming you have the correct visual basic dlls and associated files (not including the activeX controls) to run this application.  This may have to change at some point, but will expand the install program considerably (probably upto 2Mb+).

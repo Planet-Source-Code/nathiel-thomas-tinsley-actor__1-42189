@@ -1,0 +1,229 @@
+** TO_DO
+
+----------------------------------------------------------------------
+(Release Checklist)
+Build help docs.
+Build installation program(s).
+Test installation on Mark's/Beth's machine as this is an update.  Test on uni machine.
+Transfer packages to Sourceforge
+Transfer 'how it works' to documentation online (sourceforge).
+----------------------------------------------------------------------
+
+(For MINOR revision)
+Iron out bugs in help file Vocabulary View - Description
+Find out why F1 isn't jumping to correct menu in help any more.
+Use updated installation program to associate *.atr with Actor.
+
+
+*** FIND OUT HOW TO USE CVS UNDER WINDOWS PROPERLY & START USING ***
+Implement ? and ! nodes, plus any similar suitable nodes.
+Undo last sentence option so that accidently hitting return isn't so annoying.
+Option to hide control words in vocabulary view.
+Tidy up source.
+Write Form1:LoadActor to replace part of Vocab:Load
+On logging make sure default file is of the form <Actor Name>.txt
+Introduce date stamping options, etc, to logging.
+Option to rename user.
+Create an Alpha error messaging function so that the Alpha will generate error messages, but these can all be disabled (or switched to an error log, alternatively using system App object) at a later date.
+Stop jabbering by banning repetition of large (>3 letters) reply words [this is crude, a later revision might stop jabbering by phrase repetition, possibly].
+Make vocab & monitor windows resizable.
+Allow editing of links.
+Alter contextualisation so that proper nouns are always contextualised, despite length.  Add this as a selectable option.
+Find out why the program might hang on exit when GUIDEBOO.txt is successfully imported (this might not happen with the compiled program).
+Rewrite Word:AddOrdLink to accept node numbers as arguments.  Will involve rewriting clsActor:AddTokens.
+Alter save/load routines on all classes to properly report back any errors they encounter.
+Move Tree:ResObjNoToRef onto words collection class if possible...  Could retrive the reference to the class from Tree and then use...
+Should rewrite tokens array as a class.
+Rewrite Tree:Addtokens to use a collection rather than an array (?)
+Need to map data and file structures!
+See if there's a way to rewrite VocabViewList to eliminate use of Vocab:Find.
+See if there's a way to rewrite AnalyzeSentence using instr, and see whether it's faster.
+Improve Tree:RemoveWord to continue to use link, rather than end sentence.
+IDEA: Perhaps it's possible for the program itself to eliminate the most often linked words from context checking.  Hopefully these will be meaningless connectors, such as a, I, it, etc.
+Add coloured text to distinguish between user and Actor.
+Stress test with large vocabularys and find efficiency improvements (Guideboo.txt causes a failure because it appears to use hex 20 to format text instead of $13+$10)
+Look at Optimization text in Online Book.
+Allow option to ignore single letter words which aren't 'A' or 'I' (perhaps just on import).
+
+
+** Done
+
+* May 2001
+FEATURE: Supplies a filename generated from the name of the actor if that actor has never been saved before.  Also on saving, if the Actor's name has not been changed from the default but save name is not the default, then change the default name to that of the save file title, minus the .atr suffix.
+FEATURE: Built in medium and low monitor reporting levels.
+FEATURE: Eliminate jabber.  A preferred sentence size limit can now be set in Actor->Preferences->Reply.  If this limit is reached or being exceeded when a reply is being created, any word with more than a certain proportion of its links being sentence start/end will be set to be the start/end.  This proportion can also be set in Actor->Preferences->Reply.
+
+* March 2001
+### Released Actor 0.1.6 Alpha ###
+FEATURE: Double clicking on a word in the link list view of the vocabulary monitoring window now jumps to that word and shows its links.
+
+* Feburary 2001
+FIXED: Potential bug where opening another actor when there was already another actor open that hadn't been changed would invoke the "Do you want to save the changed Actor?" dialog box for the existing actor twice.  Pressing No or Cancel on the second box would cause an error.
+FEATURE: An asterisk after the actor's name on the title bar now signals if it has changed in any way.
+FEATURE: Title bar message now reads with name of program then name of Actor.
+FEATURE: Created crude help file.  Jumps to description of views if F1 pressed in vocabulary or monitor views.
+### Released Actor 0.1.5 Alpha ###
+FIXED: Bug in file saving routines so that it was only possible to save on files which already existed - new files couldn't be created!  Fixed in actor saving and logfile saving.
+### Released Actor 0.1.4 Alpha ###
+FIXED: Now catching situations where the user attempts to save to a read-only file.
+FEATURE: Implemented conversation logging.
+
+* January 2001
+### Released Actor 0.1.3 Alpha ###
+FIXED: Altered registry loading procedure to increase stability.
+FIXED: Sentence starting words no longer stored capitalised if there are spaces before the word in the sentence.
+INFO: When counting contextual word length Actor now ignores non-alphanum chars (e.g. !, -)
+FEATURE: Can now import text files delimited with &H0A (a la UNIX).
+FIXED: Now stripping out non-printing characters on importing text files.
+FIXED: Problem on loading an actor where a reduction in words due to amalgamation or word deletion wasn't accounted for.
+FIXED: bug where creating or opening a new actor would automatically delete the old one without giving an option to save or cancel if the existing one had been modified.
+### Released Actor 0.1.2 Alpha ###
+Created path registry keys for retaining the path for loading/saving actors and importing text files.
+Started including the sample actor 'Alice' in the distribution.
+Stopped dialog box text being changable in hex editor by setting labels dynamically on loading the box.
+Replaced filename in import dialog box with last saved actor name when opening/saving
+Fixed changedflag not being set when user typed in a sentence where all words in that sentence had occured before.
+Fixed reporting level bug.
+Disabled initial 'Hi there' on startup.
+Change frame on Options/Load.
+Changed title on monitor window.
+Fixed toolbar button failure to come up when monitor window quit.
+Renamed frames on Actor->Properties.
+### Released Actor 0.1.1 Alpha ###
+Added comctl32.ocx to installation.
+Tidied up options box by aligning save tab picture box and deleting save tab.
+Stopped beeping when common dialog boxes are cancelled.
+Changed file extensions from .nil to .atr and also changed some dialog box text
+### Released Actor 0.1.0 Alpha ###
+Tested on uni machine, works fine!  NT must use a registry and uni saves it for each user...
+Created installation executable.
+Now remembering status and position of views on exit, which are automatically restored when the program is next run.
+Added monitor view to allow user to see link choices, etc.
+Added vocabulary view button.
+Vocabulary view no longer loses selection highlight when a link is selected on the link list view.
+
+* December 2000
+Now storing and retrieving actor independent options settings from Registry.
+Added contextual linking options to Actor/Properties.
+Users can now change the threshold word size at which contextualisation linking takes place.  This variable is also now stored with the actor.
+New Actors are now signalled by a row of dashes on the output screen.
+Option added so that actor can speak a sentence immediately on loading (a 'greeting').
+Name of actor is displayed on the title bar.
+User can now change name of actor.
+Set up change flag on any change occurence (adding a word, correcting, deleting, etc.) to provide save query on exit.
+
+* November 2000
+Now dynamically updating link list as well as vocabulary view.
+Changed vocab word view to show number of links to previous and next words.
+Fixed instances display on vocab view.
+Fixed word merging.
+Eliminated word redirection from design.
+
+* October 2000
+Structure: Control word details (i.e. linking information) now saved in the file seperate from the vocabulary words
+Fixed: contextual link display to show contextual link weighting rather than previous links.
+Feature: User can now update weighting of contextual links on link list view.
+FIXED: On choosing contextual link, Actor now uses their weights rather than just instances.
+FIXED: removing a word now delete all the links pointing to it from other words.  Also, removing a word now updates occurences correctly on the basis of whether the link was  to an ordinary word or a control word.  The word object can now be deleted entirely (in theory) rather than redirected.
+CHANGED: Changed default behaviour so that if there are no next links, nothing.  Equally, this applies to previous links.
+CHANGED: Removed redirection from VocabForm_Delete_Click.
+
+* September 2000
+Changed vocab display so that depending on option chosen, either instances or contextual instances are display in the vocablistview.
+Fixed import routines to handle contextual linking.
+Created EOS and SOS 'word' signifiers to simplify code.
+Added link view to vocabulary view, allowing user to select between viewing previous, next and contextual links.
+Stopped vocab form unloading when the user closes it, which stops the vocablistview, etc., unloading.
+Fixed delete problem.
+
+* August 2000
+Read polymorphism in VB Online.
+Conceivably, there's an argument for have a base clsLinks and then two seperate classes clsOrdLinks and clsConLinks.  Is this appropriate?
+Complete paper plan and current object map.
+Moved object creation (new statements, as opposed to declaration) to :Class_Initialize for each object.  Apparantly this is more efficient, since declaring the objects as new means that each time they are referenced, they have to be checked for existence.  If they do not exist, they are created.
+Converted links from being a private type in word to a seperate clsLink, contained by the collection class clsLinks.
+Deleted Word.mnNoLinkInst, switched to using word.colLinks.Count() instead.
+Deleted Word:Copylinks.  Created clsLinks:Copy as a replacement
+Finished rewriting links as a collection class and an object (clsLinks and clsLink respectively).  This done in order to reuse links code for contextual link handling.
+Shifted some logic of Word:Addlink to ClsLinks:Add so that the code can be re-used for adding contextual links.
+Created new clsVocab and moved all Vocabulary related functions from words class to clsVocab.  Amended all calling code.
+Added vocab parent property to word, enabling updating of link/word/contextual link totals to be carried out in appropriate functions
+Added contextual counting function to the words class for choosing a weighted contextual word from the colllection.
+ and
+Implemented a get random contextual link function on words class to enable contextual word choosing.
+Wrote clsActor.GetConSeedWord() from parts of clsActor.Reply()
+Rewrote clsLink to have only one linking node rather than next and previous.  Better abstraction and code reuse.  Seperate links into next and previous collections in clsWord instead.
+Rewrote load/save routines to incoporate contextual linking and associated variables.
+Implemented simple contextual linking.
+Fixed problem with loading/saving where prev and next link counts different will be different numbers of occurences (and hence different link counts) for each link collection.
+Added verbose reporting level option for debugging reports, so that later this can be incoporated into a user feature, as planned.
+Put contextual linking in preferences.
+Delayed contextualisation by one sentence to stop Niall trying to repeat the user's sentence through immediate use of a newly set up contextualisation link.
+Incorporated contextualisation from User->Niall when User speaks, rather than just Niall->User.
+
+* July 2000
+Fixed scrolling, hurrah!
+Added Tree:GetNextObjNo()
+Explicit initialiazed all member variables for classes/forms in Class_Initialize procedure
+Converted large parts of Niall to use object numbers instead of direct word references, retrieving the actual words via Tree:ResObjNoToRef which uses the object number as the key to take them from the trnodes private collection, which involved...
+Rewriting AddLink, AddNewLink, SearchforLink, GetRandomLink.
+Writing Words:GetWord, Tree: ResObjNoToRef.
+Deleting Tree:BuildNNLUT, Tree:DebugNNLUT, Tree:ResNodeLinks, Word:ResLinks.
+Deleting Tree.mpLUT(), Word.link.linext.
+Eliminated Word.mpRedirect by rewriting Word:GetRandomLink, Word:SetRedirect, Word:TearDown, Word: ClassInitialiaze.
+Fixed vocabulary bug by realising that on loading, the object number represents the true number of words (including redirections) rather than tsize.
+Fixed vocabulary display (was displaying ***redirected*** words) by filtering on VocabList:Add.
+Implemented Niall option to use backward links as well as foreward links when constructing a sentence from a randomly chosen word.
+Load/save routines changed for new link.liprevno
+Changed osize, tsize, mlObjno in Tree and mnNoInstances, mnNoLinkInst in word to long rather than integer.
+Implemented backward links option in UI.
+
+* June 00
+Alter load/save dialog boxes to give choice between Niall vocab files (*.nil) or all files (*.*)
+
+* March 00
+Fixed vocab display updating problem by realising that deleting the selected node in AfterLabelEdit if it isn't the last one causes a crash.
+
+* April 00
+Fixed renaming and introduced redirect concept so that all links are carried over - appears to work.
+Rewrote load and save routines for redirection.
+Split generation number of word from tree size.
+Wrote teardown functions.
+All in all, fixed vocab problems (I think!)
+Added context sensitive menu for user routine functions in VocabList display.
+Added delete function in VocabList
+Added version information to saves and loads.
+Handled attempts to load a non-vocab file.
+
+* January 00
+Rewrote entire program to use a collection rather than a tree structure.
+
+* December 99
+Wrote simple vocabulary display.
+Stopped tokenise decapitalising "I" at the start of a sentence.
+
+* October 99
+
+Got rid of annoying beep on input by setting user text entry box to multiline.  However, had to adapt sentence splitting procedure to recognise if the user uses CTRL+RETURN to generate a new line, which actually inserts a CRLF in the input!  Also, fixed bug in sentence splitter whereby full stops which weren't followed by spaces wouldn't parse propertly.
+Instead of converting all words to lower case, changed tokeniser to converting only the first word in the sentence to lower case, to make some attempt to deal with names and 'I', though this certainly isn't perfect.
+
+* September 99
+
+Reimplemented some recursive routines which don't rely on the order of the nodes to use collections instead.  Could reimplement most of the program this way, just using node numbers in the tree which can be retrieved using this as a key from the relevant collection, I think.  What are the advantages/speed differences?
+Added toolbar with New, Open and Save.
+Stopped full stops being placed after ! and ?
+Tidied up Open & Save CommonDialog.  Seperated Save into Save and SaveAs, so that filename is retained and used if just Save is invoked.  Redesigned menus.
+Added status panel showing number of words and number of links between words.
+Changed Niall to work with multiple input sentences.
+Written file import routines (to vocabularize text files)
+
+* August 99
+
+Fixed links
+Fixed GetNode - recursion was fouling because dummy return value wasn't suitable
+Rewrote functions since discovering <object reference> is nothing can be used
+Rewritten MakeSentence and subsidaries to use links in composing sentences.
+Written output buffering routines as a temporary solution to the scrolling problem (or lack thereof)
+Written Save routines
+Written open routines and LUT building and resolution routines.  Everything appears to work! (so far)
+Tidied up output (capitalised first word).

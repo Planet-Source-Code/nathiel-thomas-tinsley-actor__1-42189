@@ -1,0 +1,317 @@
+' MainFunctions
+' Windows API declarations
+Public Declare Function SendMessage Lib "user32" Alias "SendMessageA" (ByVal hwnd As Long, ByVal wMsg As Long, ByVal wParam As Long, lParam As Any) As Long
+' Going to need to pass pointers to structures... do we do this ByRef?
+' Want to set npos=nmax in SCROLLINFO
+Public Declare Function GetScrollInfo Lib "user32" (ByVal hwnd As Long, ByVal fnBar As Long, ByRef lpsi As SCROLLINFO) As Long
+Public Declare Function SetScrollInfo Lib "user32" (ByVal hwnd As Long, ByVal fnBar As Long, ByRef lpsi As SCROLLINFO, fRedraw As Boolean) As Long
+
+
+' basGeneral:IsAlphaNum: Tell whether the first character of the string is alphanumeric
+' removed after discovering like operator
+' Trust: NONE
+' Arguments: NONE
+' Returns: Bool - TRUE if first char is alphanumber, FALSE if otherwiser
+Public Function IsAlphaNum(strToCheck As String) As Boolean
+
+    Dim strCharToCheck As String, nAscToCheck As Integer
+    
+    ' sanity - exit if no string has been given
+    If strToCheck = "" Then IsAlphaNum = False: Exit Function
+    
+    ' grab the first char and check whether alphanumeric or not
+    strCharToCheck = Mid$(strToCheck, 1, 1)
+    nAscToCheck = Asc(strCharToCheck)
+    If (nAscToCheck >= 48 And nAscToCheck <= 57) Or (nAscToCheck >= 65 And nAscToCheck <= 90) Or (nAscToCheck >= 97 And nAscToCheck <= 122) Then
+        IsAlphaNum = True
+    Else
+        IsAlphaNum = False
+    End If
+    
+End Function
+
+
+' Form1:Backward_Linking_Click
+Private Sub Backward_Linking_Click()
+    ' Toggle backward linking option
+    Backward_Linking.Checked = Not Backward_Linking.Checked
+    gobjOptions.mbBackwardLinking = Backward_Linking.Checked
+End Sub
+
+' Form1:Contextual_Linking_Click
+Private Sub Contextual_Linking_Click()
+    ' Toggle contextual linking option
+    Contextual_Linking.Checked = Not Contextual_Linking.Checked
+    gobjOptions.mbContextual = Contextual_Linking.Checked
+    
+    ' Change contextual linking status bar display to reflect new status
+    UpdateStatusPanel
+End Sub
+
+' clsLink:Adjust: Increments (or decrements) number of occurences of this link
+' Trust: LOW, checks the new number of occurences is some positive number
+' Arguments: nIncOccs
+' Returns: NONE
+Public Sub Inc(lIncOccs As Long)
+
+    If mlOccs + lIncOccs <= 0 Then ' Sanity check, check negative increment doesn't take ocurnces below zero
+        ' Adjust record of occurences on parent
+        ' mcolParent.lOccs = mcolParent.lOccs + (nNewOccs - mlOccs)
+        ' Adjust record here
+        mlOccs = mlOccs + lIncOccs
+    Else
+        MsgBox "ERROR: Inc called with " + CStr(lIncOccs) + " taking Occs to " + CStr(lOccs + lIncOccs), vbExclamation
+    End If
+
+End Sub
+
+' clsWords:GetWord: Retrieve the word associated with the given object number
+' Arguments: objno
+' Returns: word
+Public Function GetWord(objno As Long) As clsWord
+
+    Set GetWord = mcolWords.Item(CStr(objno))
+    
+End Function
+
+' Tree:BuildNNLUT: Function to build the NodeNo Look Up Table when loading a vocabulary file
+' Arguments: None
+' Returns: None
+Private Sub BuildNNLUT()
+    ' Set the LUT to the incoming tree size
+    ReDim mpLut(tsize)
+    
+    ' FOR..EACH non-recursive IMPLEMENTATION
+    For Each pnode In trnodes
+        Set mpLut(pnode.nNoNo) = pnode
+        Debug.Print mpLut(pnode.nNoNo).word
+        Debug.Print pnode.nNoNo
+    Next
+End Sub
+
+
+' Tree:ChangeWord()
+' Change locates the Word of an old string and changes it to the new word, depending on ' whether that new word already exists
+Public Function ChangeWord(ByRef oldword As String, ByRef newword As String)
+   Dim oldnode As Word, newnode As Word
+
+   ' Locate appropriate Words
+   Set oldnode = trnodes.Find(oldword): Set newnode = trnodes.Find(newword)
+   ' If the word to which the Word is to be changed already exists
+   If Not newnode Is Nothing Then
+       oldnode.CopyLinks newnode
+       ' Remove the old Word from the vocab view
+       VocabForm.Remove oldnode
+       ' Remove the old Word permenantly
+       trnodes.Remove oldnode
+   ' The word doesn't already exist, so just change the word entry
+   Else
+       oldnode.word = newword
+   End If
+End Function
+
+
+' Tree:DebugPrintNNLUT : Print out the contents of the NNLUT to the debug console
+Private Sub DebugPrintNNLUT(ByRef lut As Variant)
+    Debug.Print "<start NNLUT>"  ' ***DEBUG LINE
+
+    For i = 0 To tsize - 1
+        Debug.Print "#"; Format(i); " points to: "; lut(i).word
+    Next
+
+    Debug.Print "<end NNLUT>"  ' ***DEBUG LINE
+End Sub
+
+
+' Tree:ResNodeLinks: Resolve the current references in each link in each node using the LookUpTable
+' Arguments: None
+' Returns: None
+Private Sub ResNodeLinks()
+    For Each pnode In trnodes
+        pnode.ResLinks mpLut
+    Next
+End Sub
+
+' Word:AddNewLink: Expand the links array, and add in the next link
+' Arguments: nextlinkobjno, prevlinkobjno - word to add as new next (prev) link
+' Returns: NONE
+Private Sub AddNewLink(ByVal prevlinkobjno As Long, nextlinkobjno As Long)
+    Debug.Print "BEGIN: Word:AddNewLink"
+    ' Increment number of links
+    mnNoLinkInst = mnNoLinkInst + 1
+
+    ' Set up the new link
+    ReDim Preserve mpLinks(mnNoLinkInst)
+    Set mpLinks(mnNoLinkInst - 1) = New clsLink
+    mpLinks(mnNoLinkInst - 1).Create prevlinkobjno, nextlinkobjno
+
+    ' Set the link word number, set occurences equal to 1
+    ' mpLinks(mnNoLinkInst - 1).linextno = nextlinkobjno
+    ' mpLinks(mnNoLinkInst - 1).liprevno = prevlinkobjno
+    ' mpLinks(mnNoLinkInst - 1).lioccs = 1
+
+    ' Following is all DEBUG routines
+    Dim prevnode As word, nextnode As word
+    Dim sprevword As String, snextword As String
+    Set prevnode = Vocab.ResObjNoToRef(mpLinks(mnNoLinkInst - 1).lPrevNo)
+    If prevnode Is Nothing Then sprevword = "NONE" Else sprevword = prevnode.word
+    Set nextnode = Vocab.ResObjNoToRef(mpLinks(mnNoLinkInst - 1).lNextNo)
+    If nextnode Is Nothing Then snextword = "NONE" Else snextword = nextnode.word
+    Debug.Print sprevword; " => "; word; " => "; snextword
+
+    Debug.Print "END: Word:AddNewLink"
+End Sub
+
+' Word:Copylinks: Copy all the links from this Word to another designated Word
+' Arguments: tnode - target Word
+' Returns: NONE
+Public Function CopyLinks(ByRef tnode As word)
+    Dim i As Integer, j As Integer
+    i = 0
+    
+    ' AddLink takes care of links which already exist in the target Word
+    Do While i < mcolLinks.Count()
+        ' Iterate to add all the instances of this link
+        j = 0
+        Do While j < mpLinks(i).lioccs
+            tnode.AddLink Vocab.ResObjNoToRef(mpLinks(i).liprevno), Vocab.ResObjNoToRef(mpLinks(i).linextno)
+            j = j + 1
+        Loop
+        i = i + 1
+    Loop
+End Function
+
+' Word:Inclink - Increment an existing link to reflect another link occurrence
+' ASSUMPTION: i is a valid index link number for this Word
+Private Sub IncLink(ByRef i As Integer)
+    mpLinks(i).lioccs = mpLinks(i).lioccs + 1
+End Sub
+
+' Word:Loadlinks
+Private Sub LoadLinks(ByRef fileno As Integer)
+    Dim i As Integer
+
+    ReDim mpLinks(mnNoLinkInst)  ' Create array
+    For i = 0 To mnNoLinkInst - 1  ' Fill array
+        Get fileno, , mpLinks(i).liprevno
+        Get fileno, , mpLinks(i).linextno
+        Get fileno, , mpLinks(i).lioccs
+    Next
+
+    ' If the redirect flag is up, load in the redirect no for later resolution
+    If mbRedirect Then Get fileno, , mlRedirectNo
+End Sub
+
+' Word:RemoveNextLink: Remove any next links which point to the given word
+' Trust: LOW, word number given can be anything
+' Arguments: lLinkToRemoveObjNo
+' Returns: Object number removed if found, otherwise zero if nothing removed
+Public Function RemoveNextLink(lLinkToRemoveObjNo As Long) As Long
+    Dim objLinkToRemove As clsLink
+    ' See if a link exists to the given word
+    Set objLinkToRemove = mcolNextLinks.Find(lLinkToRemoveObjNo)
+    
+    ' Exit if no such link exists
+    If objLinkToRemove Is Nothing Then RemoveNextLink = 0: Exit Function
+    
+    ' Return the deleted link number
+    RemoveNextLink = objLinkToRemove.lLinkNo
+    
+    ' Delete the link
+    mcolNextLinks.Remove objLinkToRemove
+    
+End Function
+
+' Word:RemovePrevLink: Remove any previous links which point to the given word
+' Trust: LOW, word number given can be anything
+' Arguments: lLinkToRemoveObjNo
+' Returns: Object number removed if found, otherwise zero if nothing removed
+Public Function RemovePrevLink(lLinkToRemoveObjNo As Long) As Long
+    Dim objLinkToRemove As clsLink
+    ' See if a link exists to the given word
+    Set objLinkToRemove = mcolPrevLinks.Find(lLinkToRemoveObjNo)
+    
+    ' Exit if no such link exists
+    If objLinkToRemove Is Nothing Then RemovePrevLink = 0: Exit Function
+    
+    ' Return the deleted link number
+    RemovePrevLink = objLinkToRemove.lLinkNo
+    
+    ' Delete the link
+    mcolPrevLinks.Remove objLinkToRemove
+    
+End Function
+
+' Word:ResLinks: Resolve links just loaded, including the redirect reference if necessary
+' lut - look up table required for resolution
+Public Sub ResLinks(ByRef lut As Variant)
+    
+    ' Loop through stored links and resolve references against NNLUT
+    For i = 0 To mnNoLinkInst - 1
+        ' Only resolve if there is a Word no to be resolved
+        If Not mpLinks(i).linextno = NONODE Then Set mpLinks(i).linext = lut(mpLinks(i).linextno)
+    Next
+
+    ' Resolve the redirect no if the flag is up
+    If mbRedirect Then Set mpRedirect = lut(mlRedirect)
+    
+End Sub
+
+' Word:SaveLinks: Save the links of a Word to file
+Private Sub SaveLinks(ByRef fileno As Integer)
+    Dim i As Integer
+    For i = 0 To mnNoLinkInst - 1
+        ' Save out the link Word number for reconstitution upon loading
+        Put fileno, , mpLinks(i).liprevno
+        Put fileno, , mpLinks(i).linextno
+        Put fileno, , mpLinks(i).lioccs
+    Next
+
+    ' Put the redirect number if the flag is up
+    If mbRedirect Then Put fileno, , mlRedirectNo
+End Sub
+
+' Word:SearchForLink: Search the links on this word to see if a link for the searchnode already exists
+' Arguments: prevsearchobjno, nextsearchobjno - word object numbers to search for as a link
+' Returns: clsLink - link index number if there's a match, Nothing if there's no match
+Private Function SearchForLink(ByRef prevsearchobjno As Long, nextsearchobjno As Long) As clsLink
+    If prevsearchobjno < NONODE Or nextsearchobjno < NONODE Then Stop  ' Check object numbers are valid
+
+    Dim i As Integer: i = 0
+    ' Trawl through the list of links, counting up the number of link occurences
+    ' against the total no of links (mnNoInstances)
+    Do While i < mnNoLinkInst
+        If mpLinks(i).lPrevNo = prevsearchobjno And mpLinks(i).lNextNo = nextsearchobjno Then Set SearchForLink = mpLinks(i): Exit Function
+        i = i + 1
+    Loop
+    ' Otherwise, there is no match
+    Set SearchForLink = Nothing
+End Function
+
+' Word:SetRedirect: Set up this node to redirect any queries to the replacement node (in case of rename or delete)
+' Arguments: nword - object number of redirect word
+' Returns: NONE
+Public Sub SetRedirect(nword As Long)
+    mstrWord = "***DELETED***" ' Make it obvious if something goes wrong
+    mbRedirect = True
+    mlRedirectNo = nword
+End Sub
+
+' Word:UnwindRedirect: If this word has been redirected at least once, unwind the redirection as necessary
+' UnwindRedirect: and return the valid word this object now signifies.
+' Trust: MEDIUM, assumes redirect obj numbers are valid
+' Arguments: objWordToUnwind
+' Returns: word - valid word, redirected or not
+Public Function UnwindRedirect() As word
+
+    ' Unwind the redirects if appropriate, until we have a non-redirected word to return
+    Set UnwindRedirect = Me
+    While UnwindRedirect.bRedirect
+        With UnwindRedirect
+            Set UnwindRedirect = mobjParentVocab.Resolve(.lRedirectNo)
+            Debug.Print ("<REDIRECTED>") ' ***DEBUG LINE***
+        End With
+    Wend
+    
+'     Debug.Print "Word:UnWindRedirect returned "; UnwindRedirect.strWord
+End Function

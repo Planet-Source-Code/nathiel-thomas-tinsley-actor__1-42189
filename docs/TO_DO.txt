@@ -1,0 +1,72 @@
+** TO_DO
+
+----------------------------------------------------------------------
+(Release Checklist)
+Build help docs.
+Build installation program(s).
+Test installation on work machine.
+Transfer packages to Sourceforge
+Transfer 'how it works' to documentation online (sourceforge).
+----------------------------------------------------------------------
+
+(For this MAJOR revision)
+Talk about changes to contextual in personal tab of frmProperties.
+Update help file to include contextualisation and how-to section.
+Investigate and write instructions for getting source code project environment to load.
+Release.
+Update website.
+Set up exclude.txt downloadable file on site?
+
+
+(For next MINOR revision - this might be the version for general (i.e. ZDNet, etc.) release)
+Add webpage monitor to website.
+Optionally stamp dates in logfiles.
+Remove most nonalphanumerics from initial parsing.
+Put file structure notes on dev site.
+For the contextualisation view, create seperates lists for ordinary/contextual words.  These can be hidden/shown when needed, rather than keeping everything on one list.  Will need to amend other functions (removing a word from the list) accordingly.
+Iron out bugs in help file Vocabulary View - Description
+Mark exluded words in vocablistview.
+Enable actors to have their own context exclusion lists rather than using the default one.
+Find out why the program might hang on exit when GUIDEBOO.txt is successfully imported (this might not happen with the compiled program).
+Put activity bars on potentially time consuming functions (e.g. importing text, initialising a new actor when the existing one has a large vocabulary to be dereferenced (it may well be 
+possible to optimise this)).
+Find a program to draw function linking charts.
+Problem quitting with VERY LARGE files.  Program appears to quit but still runs in the background for a long time.  Might be a problem with the teardown process or just inefficiency.  Can this be done more efficiently or does it need to be done at all when quitting out?
+4a.  Option to reimport default exclusion file and change its location in menu.
+4b.  Add new contextual tab to clsOptions.
+4c.  Add appropriate textbox and reimport now button to this tab.
+4d.  Implement textbox conversion & exclude file reimporting.
+4e.  Active button to trigger reimport.
+5.  In next release, allow actors to have their own exclusion files... 
+Introduce learning/not learning radio button on toolbar.
+Make contextual exclusion file more sophisticated (e.g., introduce wildcard to substitute -ing -ed -s on the end of a word such as 'play' or -ly on 'immediate' or -er -est for 'large').
+
+
+(For subsequent revisions)
+(MAJOR TASKS)
+Learn to distinguish between questions and 'answers'.
+(MINOR TASKS)
+Introduce list of words which actor will ignore altogether.
+Allow list of words between which actor will automatically substitute (e.g. 'the' for 'teh').
+Option to reduce jabbering by banning repetition of reply words.
+Undo last sentence option so that accidently hitting return isn't so annoying.
+Option to hide control words in vocabulary view.
+Tidy up source.
+Write Form1:LoadActor to replace part of Vocab:Load
+On logging make sure default file is of the form <Actor Name>.txt
+Introduce date stamping options, etc, to logging.
+Create an Alpha error messaging function so that the Alpha will generate error messages, but these can all be disabled (or switched to an error log, alternatively using system App object) at a later date.
+Allow editing of links.
+Rewrite Word:AddOrdLink to accept node numbers as arguments.  Will involve rewriting clsActor:AddTokens.
+Alter save/load routines on all classes to properly report back any errors they encounter.
+Move Tree:ResObjNoToRef onto words collection class if possible...  Could retrive the reference to the class from Tree and then use...
+Should rewrite tokens array as a class.
+Rewrite Tree:Addtokens to use a collection rather than an array (?)
+Need to map data and file structures!
+See if there's a way to rewrite VocabViewList to eliminate use of Vocab:Find.
+See if there's a way to rewrite AnalyzeSentence using instr, and see whether it's faster.
+Improve Tree:RemoveWord to continue to use link, rather than end sentence.
+Add coloured text to distinguish between user and Actor.
+Stress test with large vocabularys and find efficiency improvements (Guideboo.txt causes a failure because it appears to use hex 20 to format text instead of $13+$10)
+Look at Optimization text in Online Book.  VB Collections use hash.
+Allow option to ignore single letter words which aren't 'A' or 'I' (perhaps just on import).  This to tidy up imports rather than anything else.

@@ -1,0 +1,18 @@
+:Base Actor.hlp
+:Title Actor Help
+1 IMPORTANT=IMPORTANT
+1 Introduction=Introduction
+1 How It Works
+2 Basics=Description
+2 Contextualisation=Contextualisation
+2 Contextual Exclusion=Exclusion
+1 How do I?
+2 Change the words excluded from Contextualisation?=HowDoI_ChangeExcluded
+1 Main Conversation Window
+2 Description=MainViewDescription
+2 Menus=MainViewMenus
+2 Toolbar=MainViewToolbar
+1 Vocabulary Window
+2 Description=VocViewDescription
+1 Monitor Window
+2 Description=MonViewDescription

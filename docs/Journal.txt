@@ -1,0 +1,261 @@
+Journal
+
+20010828 (DONE)
+
+1.  Remove conwords output from debug - just provide a count (DONE).
+
+1.  Saving a completely empty Actor as anonymous.atr then opening it throws a startlog error.  This is because the autolog option assumes a valid log filename on load!  Need to change frmMain:LoadActor to not try to start logging where a filename does not exist (DONE).
+
+Test for bugs in VocabListView functions.
+
+Corrections which merge throw an error in frmVocab:Update.  This is a result of clsVocab:Remove calling clsWord functions (RmAllPrevLinks, etc.) which automatically update the vocab display.  But by the time these functions are called, the word they are referring to has already been deleted from the display, causing the error.
+
+On reflection this is a bad design decision, UI updating should not be done at the application logic level, even if this does lead to duplication and potential replication up above.  Since these functions are only called by clsVocab:Remove, we can transfer the functionality, perhaps even further up.  Possibly in frmVocab:Vocab_Correct_Click?
+
+1.  Lazily, I've instead altered frmVocab:AfterLabelEdit so that the word is removed _after_ the updates are done.  However, this is merely a sticking plaster for the gaping design wound and this whole section will have to be rewritten at some future point (DONE).
+
+
+20010821 (DONE)
+
+Executable can run out of words on clsWords:GetOrdRnd on imperfect Actor files.  Possible fix clsVocab:GetOrdRnd to retry if error?  Will this cause a problem if, somehow, there are no words in the actor or words with zero weighting?
+
+1.  Change clsWords:GetOrdRnd to signal error (DONE).
+
+2.  Handle error in calling functions for :GetOrdRnd - clsVocab:GetOrdRnd (indirectly clsActor:Reply) (DONE).
+
+3.  Change clsWords:GetConRnd to signal error (DONE).
+
+4.  Test for possible zero weighting bug?  Not actually an issue - since currently UI doesn't allow zero weightings. (ABORTED).
+
+
+20010819 (DONE)
+
+1.  Convert all my errors to use vbObjectError constant (DONE).
+
+1.  Change the useless Apply buttons and associated code in frmOptions and frmProperties to help buttons which invoke the help file (DONE).
+
+2.  Change the help file to make explicit sections for Options and Properties boxes (DONE).
+
+3.  Establish help context IDs which will be invoked by the help buttons in Options and Properties dialog boxes (DONE).
+
+Update help file for changes.
+
+1.  Changes to contextualisation in actor properties box (DONE).
+
+2.  Write seperate contextualisation section in help file and include in contents.  Explain use of exclusion and exclude.txt (DONE).
+
+3.  Introduce how to section - put in contextual exclusion (DONE).
+
+4.  Recompile help file (DONE).
+
+5.  Update readme (DONE).
+
+20010808 (DONE)
+
+Rewrite save functions to better handle failure with proper error handlers to cover all eventualities, etc.
+
+1.  :Save functions on clsLink, clsLinks, clsWord, clsVocab, clsActor (DONE).
+
+2.  Change return code on Form1:SaveActor (DONE).
+
+3.  Change Form1:Vocab_Save, :Vocab_SaveAs (DONE).
+
+Need to make frmVocab:AddLink more tolerant of duplicate entries.  Older actor files may have duplicate links (due to poor/previous different removal procedures) so :AddLink needs to find these items if they already exist and add information to existing item rather than throwing error.  It already is tolerant in the compiled version! (NOT FIXED NOW SINCE ACTOR FILES SHOULD NOT SUFFER FROM THIS PROBLEM, and it might require an ugly hack to fix it!) (ABORTED).
+
+
+20010806 (DONE)
+
+Add magic string and section checkpoint strings to actor files so that we can easily identify actor files and anyway problems during loading.  Really want to return an error code from load functions so that the calling function can decide what to do (in this case, pass back if a child load or if clsActor:Load, create a new actor instead).  So.
+
+1.  Add string to start of files to identify them as Actor files.  But this causes incompatibility with earlier actor versions!  Most incorrect files seem to be picked up anyway, so just tidy up some of the error reporting instead (ABANDONED).
+
+2.  Implement error checking based on this (ABANDONED).
+
+3.  Add a magic byte (probably &H66 :-)  to various parts of this file (after loading the actor stats, after loading a new word, after loading the links within that word) (DONE).
+
+4.  Rewrite clsLinks:Load, clsWord:Load, clsVocab:Load, clsVocab:LoadCtrlWords to properly catch errors and bubble up fault condition to clsVocab:Load (or poss ultimately Form1:LoadActor) (DONE).
+
+4b. Hive off actor deletion section of new actor to form new function Form1:RmActor (DONE).
+
+4c. Rewrite Form1:NewActor to take an actor variable as an argument (DONE).
+
+4d. Rewrite Form1:LoadActor to take an actor variable as an argument and tear down its actor if it fails to load (DONE).
+
+4e. Rewrite Form1:Vocab_Open_Click to initialise a new actor if the load fails or use the successfully loaded actor (DONE).
+
+4f. Rewrite Form1:Vocab_New_Click (DONE).
+
+Perform error checking and appropriate error logging based on these messages.  Default writing for files appears to be held over until they are closed... but if the program is kept running continuously this will eat up memory.
+
+Write a new general purpose class called clsLog to handle both conversation logging and error file logging.  Will need an :oublier function supplied with file name to open & options (append, overwrite, etc.).  Also a :log function and a :ferme function.  Need filetitle/name vars, logflag and a count of unwritten (to file) log lines.  Get :echo to watch out for loglines limit and when hit, call :WriteOut function to dump lines in logfile, (which will clear I/O buffer) and reoublier logfile.
+
+5a.  Establish clsLog object - alter actor.vbw to use relative path name.  Add file to CVS (DONE).
+
+5b.  Establish variables.  Logging flag, filetitle/path, linecount (DONE).
+
+5c.  Write clsLog:Oublier (DONE).
+
+5d.  Write clsLog:Ferme (DONE).
+
+5e.  Write clsLog:Log (DONE).
+
+6a.  Use clsLog functions to create a proper logfile (Actor.log in the directory Actor is run from - need constant).  Need to open and close.  I know I could use the VB App object functions but to get this to work in compiled mode I would need to create an ActiveX object - I would rather use the clsLog function (disadv. clsLog may be buggy, not very features, adv. code reuse, makes things a little simpler) (DONE).
+
+6b.  Alter all :load functions to write errors to logfile.  Namely clsWord:Load, clsVocab:Load, clsActor:Load (DONE).
+
+7a.  Alter clsLog to accept optional filename as argument.  If none given, check if filename is defined.  If not, throw error (DONE).
+
+7aa. Establish gobjOptions.mstrDefLogPath & .mstrDefLogTitle to act as defaults.
+
+7ab. Alter Form1 variables (eliminate mstrLogPath, mstrLogFileTitle, change :LoadSettings, etc.) (DONE).
+
+7b.  Include clsLog object in clsActor to replace mstrLogPath, mstrLogFileTitle (DONE).
+
+7c.  Rewrite Form1:UpdateLog, :StartLog {what are we passing?}, :StopLog to use clsLog functions (mainly duplicate).  Remember to check error condition so don't grab wrong title/path.  Change gobjOptions.gbAppendLog to enum eLogModes (DONE).
+
+
+20010805 (DONE)
+
+My original alice.atr will not load.  Is there a good reason for this?  If there is a failure, user needs to be notified (currently a zero size actor appears to be loaded...) - see above.  Funny figures - definitely some loading confusion.  Hex analysis reveals the version number is 'wrong' - must have botched the conversion.  Does highlight the need for embedded magic numbers to pinpoint such a fault, rather than having to look through the file manually (CHECKED).
+
+
+20010729 (DONE)
+
+Appear not to be updating word list view link stats when words are deleted.  This should be done by the calling function but frmVocab:mnuVocab_Delete_Click never does this!  (may also need to check out if frmVocab:AfterLabelEdit is missing a trick here).  To do it, need clsVocab:Remove to pass back a list of words to which the removed word links.  So.
+
+1.  Rewrite clsVocab:Remove to pass back a collection of clsWords containing words to which the removed word linked (DONE).
+
+2.  Rewrite frmVocab:mnuVocab_Delete_Click to update statistics on this collection of words (DONE).
+
+3.  Examine frmVocab:AfterLabelEdit for the same potential problem (DONE).
+
+Works with words without many links, but crashes when I try to remove "a"!  This may be a legacy problem (since I'm using a large actor file which has been through many iterations).  Thus, make clsVocab:Remove more tolerant of bad links (carry on but write error to debug [later external error log])  Now I can delete common words (including "a","I","is") and see Actor gradually make even less sense than it usually does :-) (DONE).
+
+
+20010728 (DONE)
+
+BUG: deleting words in vocablistview does not remove the contextual links from words which link into the deleted word.  Solving the statistics updating problem above appears to have resolved this (FIXED).
+
+
+20010724 (DONE)
+
+Rewrote clsWord:conLen and eliminated basGeneral:IsAlphaNum after discoering Like operator (DONE).
+
+Transfer exclusion flag from clsOptions to clsActor class.
+
+1.  Transfer flag (DONE).  
+
+2.  Transfer initialisation routines (Form1:LoadSettings) (DONE).
+
+3.  Include flag in save routine (DONE).
+
+4.  Include flag in load routine (DONE).
+
+5.  Allow exclusion flag to be toggled in GUI (DONE).
+
+When first loading actors of a lower version number, ask if contextual exclusion should be set to on and excluded words purged from the contextual database.  My want to make this a settable option anyway, to handle the case when exclusion.txt changes between program invocations.  To remove links write clsWord:RmAllConLinks -> clsWord:RmConLink, clsVocab:PurgeConExcluded, to be called from clsActor:Load?.  May lead to rewriting clsVocab:Remove.
+
+1.  Write clsWord:RmAllConLinks (for excluded words) (DONE).
+
+2.  Write clsVocab:PurgeConExcluded (DONE).
+
+3.  Test through clsActor:Load (DONE).
+
+4.  But need to remove references from linked words as well.  So rewrite clsWord:RmAllConLinks to do this (DONE).
+
+5.  Change clsVocab:PurgeConExcluded to change vocablistview (DONE).
+
+6.  Rewrite clsVocab:Remove to split removal into three functions on clsWord, :RmAllPrevLinks, RmAllNextLinks and RmAllConLinks [already written in 4] (DONE).
+
+
+20010720 (DONE).
+
+Next steps to implement contextual exclusion.
+
+1.  Setup gobjExclusions.  Setup reference to this class in Actors, on Initialisation.  Need to write clsActor:Init to set this reference up (DONE).
+
+2a.  Change clsActor:GetCntxtlWords to exclude words parsed from exclude.txt now in gobjExcusions (DONE).
+
+2b.  Need to establish flag to signal whether contextual exclusion is being used or not.  This is gobjOptions:gbExclude (DONE).
+
+3c.  Need a function (clsWord:ConWord calling basGeneral:TruncLeft & :TruncRight) to return a string stripped of beginning/end nonalphanum characters to properly implement contextual exclusion.  Need to use this in cslActor:GetCntxtlWords.  Rewrite clsWord:ConLen to make use of these functions (DONE).
+
+
+20010718 (DONE).
+
+Changed my mind on setting the default exclusion path/file title in the registry on installation and moved back into main program so that first compilation of the source for anybody downloading will not involve running an installation or adding registry keys (DONE).
+
+clsExclusions:Load appears to work propertly after rewriting basGeneral:InputLine to deal more properly with both LF and CRLF delimited files (DONE).
+
+Rewrite clsActor:Load to move actual act of file opening to Form1:LoadActor (DONE).
+
+
+20010713 (DONE).
+
+Will eventually need to add GUI options to select filename of exclusions list / reparse if filename changes (SEE ABOVE).
+
+
+20010709 (DONE).
+
+Breakpoint loading procedures to find out where things are going wrong.  Stupid problem with  checking version numbers for backward compatibility.  *** Write new function basGeneral:GetVersion to construct an ordinal version number for easy comparisons *** (DONE, FIXED).
+
+-------------------------------------------------------------------------------------------
+
+### New task is to parse a file of externally held words to form an exclusion collection in order to eliminate words which don't relate to objects/concepts (e.g. pronouns, verbs) from being picked up by contextual functions. ###
+
+So.
+
+1.  Create clsExclusions based on clsCollection. (DONE)
+
+1b.  Add Load function to clsExclusions (DONE).
+
+1ba.  Write Form1:LoadExclusions.  Establish mstrExclusionsFileTitle, mstrExclusionsFilePath and defaults (probably current directory and exclude.txt or similar, this is done at installation in registry, so created ExclPath in Files and new key Files to contain ExclFileTitle) (DONE).  Implement these in Form1:LoadRegSettings and :SaveRegSettings.  Change installation file for 020a. (DONE)
+
+1baa.  Add Exclude\Exclude.txt to CVS (DONE).
+
+1bab.  Change installation makefile to created exclude directory (DONE).
+
+1c.  Add clsExclusions to CVS. (DONE).
+
+2.  Open external database file (initally just an ASCII file) (clsExclusions:Load) (DONE).
+
+3.  Parse database into exclusion list (clsExclusions:Parse) (DONE).
+
+4.  To TEST, print out list to Immediate (DONE).
+
+
+20010708 (DONE).
+
+Alter clsWords:GetWord. (DELETED)
+
+Now problems loading.  In particular links number is wrong, suggesting something went wrong with the save. (FIXED).
+
+
+20010707 (DONE).
+
+Major design flaw - indexing of words uses their object number as key.  But this means input words have to be searched against, on average, half the collection.  As the collection gets larger then reply times will increase (DOWN).
+
+Object numbers are used to restore links between words after loading an actor, since references (pointers) cannot be stored.  Alternative is either to store link words as the actual word (e.g. 'cat', 'dog') to look up the corresponding Word object in the database [will increase Actor file size dramatically - if a long is 2 bytes and a 5 letter word is 6 bytes then with a 100 words with an average of 4 links each, this is 800 vs. 2400 (DOWN)].  Alternative is to also save a lookup table linking object numbers with word strings.
+
+This lookup table should be stored for use by clsLinks to actually resolve object numbers to  word strings which can then be looked up in the clsWords collection.  So what we would be effectively doing is two lookups, in order to enable 'new' words to be initially looked up to avoid a high time penalty when working with a large Actor.
+
+So.
+
+1.  Create clsLookUp object (using clsCollection) and implement storage of <obj no>-<word string> alongside existing infrastructure.  In other words, write clsLookUp:Add and use in clsVocab:Add.  Created mcolLookup in clsVocab.  (DONE)
+
+1b.  Need to add control words to lookup. (DONE)
+
+2.  Alter high level load routines to create contents of clsLookUp.  i.e. modify clsVocab:Load. (DONE)
+
+3.  Alter link resolution to use look up table then (temporarily) existing inefficient clsWords:Find function.  This means writing clsLookUp:Item (making this default) and changing clsVocab:Resolve and functions which call it. (DONE)
+
+4.  Alter clsWords:Add to store words based on string rather than object number.  Alter clsWords:Find.  But example Alice is apparantly adding duplicate words on load!  This is because collections ignore case in key strings! (FIXED, DONE)
+
+4a.  To maintain backward compatibility need to merge words which would be duplicates in lowercase (e.g. "Cat" and "cat") on load.  Involves altering clsVocab:Load.  Problems merging these words!  Suspect this is because we are trying to merge before all the words have been loaded so clsVocab:Merge tries to change links on words which don't even exist yet...  So maintain imperfect compatibility by lookup entries for 'duplicate' words but these will point to the original word. (DONE)
+
+Still errors: need to update mlWordsCount,mlOrdOccsCount,mlConOccsCount. (DONE).
+	    : reply sentences now only seem to generate first word.  Needed to amend 		clsCollection:Add. (DONE)
+
+4b.  Change clsWords to use public (for enumeration) clsCollection.  Alter functions.  Alter  enumeration of clsWords by other functions (IN PROGRESS).
+
+Need to add journal.txt, lookup.cls to CVS. (DONE)

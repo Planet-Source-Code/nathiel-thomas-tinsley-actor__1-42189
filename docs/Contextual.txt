@@ -1,0 +1,13 @@
+Definite Rules.
+
+1.  Always contextualise proper nouns.
+e.g. "I don't like to work on Sunday" should take 'Sunday' as the context word.  Only problem is that this is difficult (probably impossible under this approach) to do for the first word in a sentence.
+
+2.  Lower limit for contextualization is 3 letters, at least for nouns - anything lower we assume will not be a meaningful contextual word.
+
+
+Ideas for contextualisation
+
+Add this as a selectable option?  IDEA: Perhaps it's possible for the program itself to eliminate the most often linked words from context checking.  Hopefully these will be verbs, pronouns, etc. such as you're, doing.  This will enable the required word length for contextualisation to be lowered).
+
+IDEA: Somehow choose a contextual word from each sentence.  Words following 'the'?  Have to recognise sentences without any contextual words (e.g. yes/no replies).

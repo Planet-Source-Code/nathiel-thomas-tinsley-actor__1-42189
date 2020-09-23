@@ -1,0 +1,153 @@
+HOW IT WORKS
+
+-------------------
+CONTEXTUAL
+
+* How are contextual links counted?
+
+In each word the contexual links collection keeps a count of contextual links which is valid at all times.  Contextual links are 'double counted' (that is, 'contextual A'->'contextual B' and 'contextual A'->'contextual B'.
+
+
+* How are random contextual seed words chosen?
+
+1.  We choose one of the contextual words in the user's last input sentence.  We do this by weighting each word with its number of contextual link instances (rather than the total weighting of its contextual links).
+2.  Choose between the contextual links on the word.  We do this at random, using the contextual link weights.
+
+
+* How does exclusion work?
+
+If the contextual exclusion option is set in the Actor properties, then the program will exclude words from being contextualised that are in an exclusion list, by default exclude.txt in the exclude directory.  The words in exclude.txt each have to be on a seperate line.  Any potential contextual word is compared against this list, after the non-alphanumeric characters have been stripped from the word (so in terms of contextualisation, 'yourself', 'yourself!' and 'yourself?' look the same to the program).  If the word is on the list, then it isn't used in any contextual linking.
+
+
+* How does weighting work?
+
+Each link in the exclusive collection of contextual links for each word has a numerical weight.  The total weight is always valid in the collection class.
+When a contextual link needs to be chosen, it is chosen using the weights of each link.  Links with a greater weight in relation to the others are chosen more frequently.  Basically, the link values are percentages.
+
+
+* What happens when the weight of a contextual link is adjusted?
+
+1.  The weight of the link and the always valid total weight in its containing collection class are changed.
+
+
+* What makes a word contextual?
+
+A word is currently contextual if its 'contextual' length is equal to or longer than the minimum selected size.  The 'contextual' length only counts its alphanumeric characters.  For instance, fabulous is a size 8 but foo-bar and flamer! are size 6.
+
+
+--------------------
+CONTROL WORDS
+
+* How are control words initialized?
+1.  Initialization takes place in the Class_Initialize of clsVocab.
+2.  The control words collection is set up and the control words create and added.
+3.  At the same time, the control words are added to the vocabulary list view.
+
+
+* How are control words saved and loaded?
+
+Control words are saved in order from lowest object number to highest using the same word class routines as ordinary words.
+
+
+* Why are there seperate control words from the main words?
+
+Good question.  The idea was to make it easier to manipulate ordinary and control words in different ways.  But the lines are blurred by the fact that I'm now storing linkage information on the start (SOS) and end of sentence (EOS) words.
+
+The original intention was to free up these 'phrases' for use by the user.  But seeing as it's not possible to enter phrases at present, there needs to be a design decision between treating control words as ordinary words and altering saving/loading procedures to incorporate control words into the file structure.
+
+--------------------
+EXIT
+
+* What happens when the program exits?
+
+1. Query if the user wants to save if the actor has changed since the last save.
+2. Save the current window positions and status (whether visible or not) to the registry.
+
+--------------------
+FILES
+
+* How are default paths set up for actor/log/exemption file locations?
+
+These are created by the installation program in the registry.
+
+
+* How do you tell if the actor has been changed since the last save?
+
+By using a change flag on the clsActor object
+
+--------------------
+LINKING
+
+* How are links changed?
+
+Links are changed by deleting the old link and creating a new link.  This is to maintain the read protect status of the link no in the link object.
+
+
+* How are words linked?
+
+Words maintain collections of links to previous and next words.  Each previous or next link counts as one seperate link.  Links are stored as object numbers, not as pointers.  This is to facilitate saving the file structure and making everything simple.
+
+
+* What happens if all the previous/next links of a word are removed?
+
+This can happen when other words are deleted.  For instance, if the actor only knows the sentence,
+
+"The cat sat on the mat"
+
+Then removing 'cat' will mean 'The' has no next links and 'sat' has no previous links.  In these circumstances the word with no links will be treated as pointing to a SOS or EOS appropriately.  In this example, 'The' would always end a sentence and 'sat' would always end up starting one, if it was linked to when a sentence was being built.
+
+The waitings are not retained once the word with no prev/next links is next linked to some other word.  This solution seems the best short of banning deletions if they would result in words which are not linked in one direction.
+
+* What happens when the weight of a link is adjusted?
+1.  The internal weight of the link is adjusted
+2.  The total weight on the links collection to which the link exclusively belongs is adjusted.
+
+--------------------
+MONITORING
+
+* How do you choose what is sent to the monitor view?
+
+In the program itself, output is sent to frmMonitor:Output direct with a parameter which indicates it's level of importance (None, Low, Med, High).  But in development, there is also a basGeneral:Reporting function which compares the argument reporting level with what is currently set.
+
+--------------------
+REPLYING
+
+* How are replies generated?
+
+1.  Choose a 'seed' word to generate the sentence around.  If contextual replies are enabled, this will be a contextual word linked to some contextual word in the user's sentence.  If there are no such words available or contextual linking is turned off, this will be some random weighted word, where the weights are the number of times each word has occured.
+
+2.  Build the words in the sentence which will follow on from the seed word.  Each word is chosen by selecting a random link from the current word, weighted by the number of times each link has occured in the user's input.  If reply curtailment has been selected (jabber reduction) then if the number of words is >= the preferred maximum reply limit then each new linked word is tested as to whether it has a high enough proportion of links to the EOS control word to be considered a valid sentencing ending word.  If so, the sentence is ended on this word.
+
+3.  If backward linking has been selected (currently the user has no way of turning it off), the sentence is then built from the seed word backwards (i.e. generating the words which start the sentence).  As above, the reply is curtailed if it exceeds the mainimum reply limit.
+
+4.  Tidy the sentence up for output by capitalising and adding a full stop if necessary, etc.
+
+
+* How does reply curtailment work?
+
+There are two settings.
+
+1.  The number of words the user would prefer in a sentence.
+
+2.  The proportion of EOS (End Of Sentence) or SOS (Start of Sentence) links required in a word for it to be considered an EOS or SOS terminator.
+
+If reply limiting (curtailment) has been enabled, then once the number of words >= preferred reply length, the current and subsequent words (if necessary) are checked to see whether they have a high enough proportion of EOS or SOS links to act as 'terminators'.  If so, they are chosen as terminators regardless of the word's other links.
+
+--------------------
+VOCABULARY
+
+* How is vocabulary linked to the actor?
+
+Each actor has its own exclusive vocabulary.  If we wanted to create two actors with the same vocabulary we would duplicated the vocabulary.
+
+--------------------
+WORDS
+
+* What are control words?
+
+Control words are words which don't form part of the vocabulary but are there to mark the start and end of a sentence, etc.
+
+
+* What are real words?
+
+Real words are currently any words which aren't control words.
